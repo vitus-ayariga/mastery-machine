@@ -69,6 +69,7 @@ export default function OcclusionGenerator({ onCardsGenerated }: OcclusionGenera
         const renderContext = {
           canvasContext: context,
           viewport: viewport,
+          canvas: canvas
         };
         await page.render(renderContext).promise;
       }
