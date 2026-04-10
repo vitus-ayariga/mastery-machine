@@ -2,13 +2,14 @@
 
 import { useState, useRef, useEffect } from "react";
 import * as pdfjsLib from "pdfjs-dist";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Loader2, Upload, ChevronLeft, ChevronRight, Crop, Square, Check, Trash2, Save } from "lucide-react";
 import { Flashcard, OcclusionBox } from "@/types/flashcard";
 import { v4 as uuidv4 } from "uuid";
 import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 // Configure PDF.js worker to use the local file in the public folder
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
@@ -197,12 +198,16 @@ export default function OcclusionGenerator({ onCardsGenerated }: OcclusionGenera
                   id="pdf-upload"
                   disabled={isProcessing}
                 />
-                <Button asChild size="lg" className="bg-purple-600 hover:bg-purple-700">
-                  <label htmlFor="pdf-upload" className="cursor-pointer">
-                    {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
-                    Choose PDF File
-                  </label>
-                </Button>
+                <label 
+                  htmlFor="pdf-upload" 
+                  className={cn(
+                    buttonVariants({ size: "lg" }), 
+                    "bg-purple-600 hover:bg-purple-700 cursor-pointer text-white"
+                  )}
+                >
+                  {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
+                  Choose PDF File
+                </label>
               </div>
             </motion.div>
           )}
