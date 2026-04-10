@@ -300,7 +300,7 @@ export default function FlashcardApp() {
                 <div className="space-y-4">
                   <Label className="text-base font-bold text-slate-700">1. Destination</Label>
                   <div className="space-y-3">
-                    <Select value={selectedCourseId} onValueChange={setSelectedCourseId}>
+                    <Select value={selectedCourseId} onValueChange={(val) => setSelectedCourseId(val || "")}>
                       <SelectTrigger className="h-12 rounded-xl bg-white border-2 border-slate-200">
                         <SelectValue placeholder="Which course is this for?" />
                       </SelectTrigger>
