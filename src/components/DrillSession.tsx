@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, XCircle, Trophy, RefreshCcw, ArrowRight } from "lucide-react";
 import 'katex/dist/katex.min.css';
-import { BlockMath } from 'react-katex';
+import { BlockMath, InlineMath } from 'react-katex';
 import OcclusionCard from "./occlusion/OcclusionCard";
 import confetti from "canvas-confetti";
 import { useEffect as useConfettiEffect } from "react";
@@ -101,13 +101,23 @@ export default function DrillSession({ cards, onClearCards }: DrillSessionProps)
   };
 
   // Render content based on card type
-  const renderCardContent = (text: string, type: string) => {
-    if (type === "equation") {
-      return <div className="py-4"><BlockMath math={text} /></div>;
+  const renderCardContent = (text: string, type: string, isInline: boolean = false) => {
+    if (!text) return null;
+    
+    // Detect if this string is primarily LaTeX math
+    // It's math if it has $ markers OR contains common LaTeX commands like \frac, \sigma, etc.
+    const hasLatexCommands = text.includes('\\');
+    const hasMathMarkers = (text.includes('$') || text.includes('$$'));
+    
+    // We render as Math if it's an equation card OR if it has math markers/commands
+    // BUT we only render the whole block as math if it's NOT just a plain text sentence containing a single symbol.
+    // For now, if it's an 'equation' card and has \, we treat the whole field as math.
+    if ((type === "equation" || hasMathMarkers || hasLatexCommands) && hasLatexCommands) {
+      const cleanMath = text.trim().replace(/^\$\$?/, '').replace(/\$\$?$/, '');
+      return isInline ? <InlineMath math={cleanMath} /> : <div className="py-2 w-full"><BlockMath math={cleanMath} /></div>;
     }
     
-    // For blanks, maybe we just show it as text, it already implies context.
-    return <p className="text-xl whitespace-pre-wrap leading-relaxed">{text}</p>;
+    return <p className={`${isInline ? 'text-base' : 'text-xl'} whitespace-pre-wrap leading-relaxed`}>{text}</p>;
   };
 
   if (status === "not-started") {
@@ -210,7 +220,7 @@ export default function DrillSession({ cards, onClearCards }: DrillSessionProps)
                       return (
                         <div 
                           key={i} 
-                          className={`p-4 rounded-xl border-2 transition-all ${
+                          className={`p-4 rounded-xl border-2 transition-all flex items-center gap-3 ${
                             isFlipped 
                               ? isCorrect 
                                 ? "bg-green-500/10 border-green-500 text-green-700 font-bold" 
@@ -218,10 +228,12 @@ export default function DrillSession({ cards, onClearCards }: DrillSessionProps)
                               : "bg-background border-border hover:border-primary/30"
                           }`}
                         >
-                          <span className="inline-block w-8 h-8 rounded-full bg-muted flex-shrink-0 text-center leading-8 mr-3 font-mono text-sm">
+                          <span className="inline-block w-8 h-8 rounded-full bg-muted flex-shrink-0 text-center leading-8 font-mono text-sm">
                             {String.fromCharCode(65 + i)}
                           </span>
-                          {option}
+                          <div className="flex-1">
+                            {renderCardContent(option, currentCard.type, true)}
+                          </div>
                         </div>
                       );
                     })}

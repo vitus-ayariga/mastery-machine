@@ -12,9 +12,9 @@ import { generateFlashcardsAction } from "@/app/actions";
 import { Flashcard, Course, Deck } from "@/types/flashcard";
 import { v4 as uuidv4 } from "uuid";
 import DrillSession from "./DrillSession";
-import { BrainCircuit, BookOpen, Loader2, Upload, LayoutDashboard, Plus, GraduationCap, FolderOpen } from "lucide-react";
+import { BrainCircuit, BookOpen, Loader2, Upload, LayoutDashboard, Plus, GraduationCap, FolderOpen, Trash2 } from "lucide-react";
 import * as pdfjsLib from "pdfjs-dist";
-import { getCourses, createCourse, createDeck, saveFlashcards, getDecks, getFlashcards } from "@/lib/db";
+import { getCourses, createCourse, createDeck, saveFlashcards, getDecks, getFlashcards, deleteDeck } from "@/lib/db";
 
 // Configure PDF.js worker to use the local file in the public folder
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
@@ -84,6 +84,18 @@ export default function FlashcardApp() {
       alert("Failed to load cards for this deck.");
     } finally {
       setIsLoadingMetadata(false);
+    }
+  };
+
+  const handleDeleteDeck = async (e: React.MouseEvent, deckId: string) => {
+    e.stopPropagation();
+    if (!confirm("Are you sure you want to delete this deck? All flashcards in it will be lost.")) return;
+    
+    try {
+      await deleteDeck(deckId);
+      setUserDecks(prev => prev.filter(d => d.id !== deckId));
+    } catch (e: any) {
+      alert(`Failed to delete deck: ${e.message}`);
     }
   };
 
@@ -272,8 +284,18 @@ export default function FlashcardApp() {
                         className="group hover:border-indigo-400 cursor-pointer transition-all shadow-premium hover:shadow-indigo-100 rounded-3xl overflow-hidden"
                         onClick={() => handleSelectDeckForDrill(deck)}
                       >
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-lg truncate">{deck.name}</CardTitle>
+                        <CardHeader className="pb-2 relative">
+                          <div className="flex justify-between items-start">
+                             <CardTitle className="text-lg truncate pr-8">{deck.name}</CardTitle>
+                             <Button 
+                               variant="ghost" 
+                               size="icon" 
+                               className="h-8 w-8 text-muted-foreground hover:text-red-500 hover:bg-red-50 -mt-1 -mr-1"
+                               onClick={(e) => handleDeleteDeck(e, deck.id)}
+                             >
+                               <Trash2 className="w-4 h-4" />
+                             </Button>
+                          </div>
                           <CardDescription>Created {new Date(deck.created_at).toLocaleDateString()}</CardDescription>
                         </CardHeader>
                         <CardFooter className="bg-muted/30 py-3 flex justify-between items-center group-hover:bg-indigo-50/50">

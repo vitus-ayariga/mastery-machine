@@ -128,3 +128,11 @@ export async function updateFlashcardMastery(cardId: string, bucket: number, nex
     .eq('id', cardId);
   if (error) throw error;
 }
+export async function deleteDeck(deckId: string) {
+  if (!supabase) throw new Error("Supabase not configured");
+  const { error } = await supabase
+    .from('decks')
+    .delete()
+    .eq('id', deckId);
+  if (error) throw error;
+}

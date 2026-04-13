@@ -18,7 +18,7 @@ Your task is to analyze the entire document and generate an exhaustive set of fl
 Generate an incredibly diverse set of flashcards using these 6 types:
 1. "qa": Simple Q&A. (Fields: type, question, answer)
 2. "blanks": 'Fill-in-the-blank' / Cloze Deletions. (Fields: type, question (with blanks like ____), answer)
-3. "equation": Equations using LaTeX. (Fields: type, question, answer (LaTeX string))
+3. "equation": Equations using LaTeX. (Fields: type, question, answer (LaTeX string)). IMPORTANT: Do NOT include $ or $$ delimiters in the LaTeX string.
 4. "mcq": Multiple Choice. (Fields: type, question, options (array of 4 strings), answer (the correct string))
 5. "context": 'Context' cards. Large snippets with important blanks. (Fields: type, question, answer)
 6. "occlusion": Image Occlusion for diagrams.
