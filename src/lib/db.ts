@@ -13,11 +13,23 @@ export async function getCourses() {
 
 export async function createCourse(name: string) {
   if (!supabase) throw new Error("Supabase not configured");
+  
+  // Try to find existing first
+  const { data: existing, error: findError } = await supabase
+    .from('courses')
+    .select('*')
+    .eq('name', name)
+    .maybeSingle();
+    
+  if (findError) throw findError;
+  if (existing) return existing as Course;
+
   const { data, error } = await supabase
     .from('courses')
     .insert([{ name }])
     .select()
     .single();
+    
   if (error) throw error;
   return data as Course;
 }
@@ -35,11 +47,25 @@ export async function getDecks(courseId: string) {
 
 export async function createDeck(courseId: string, name: string) {
   if (!supabase) throw new Error("Supabase not configured");
+  
+  // First, try to find an existing deck with this name
+  const { data: existingDeck, error: findError } = await supabase
+    .from('decks')
+    .select('*')
+    .eq('course_id', courseId)
+    .eq('name', name)
+    .maybeSingle();
+
+  if (findError) throw findError;
+  if (existingDeck) return existingDeck as Deck;
+
+  // If not found, create a new one
   const { data, error } = await supabase
     .from('decks')
     .insert([{ course_id: courseId, name }])
     .select()
     .single();
+  
   if (error) throw error;
   return data as Deck;
 }

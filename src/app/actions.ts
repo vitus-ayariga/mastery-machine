@@ -38,7 +38,7 @@ IMPORTANT for 'occlusion':
 - Generate one 'occlusion' card for EACH label/part of a diagram so the user can study each one.
 
 Output ONLY a valid JSON array of objects.
-Target 50 - 150 cards if the content is long.
+Target 25 - 60 cards for stability.
 ${payload.text ? `\nTarget Text:\n${payload.text}` : ''}
   `;
 
@@ -56,8 +56,13 @@ ${payload.text ? `\nTarget Text:\n${payload.text}` : ''}
 
     const model = ai.getGenerativeModel({ 
       model: "gemini-3-flash-preview",
-      systemInstruction: "You strictly output a valid JSON array.",
-    }, { apiVersion: "v1beta" });
+      systemInstruction: "You strictly output a valid JSON array of flashcard objects.",
+      // @ts-ignore - Gemini 3 specific parameter (2026)
+      thinkingConfig: { 
+        thinkingLevel: "low", 
+        includeThoughts: false 
+      }
+    }, { apiVersion: "v1beta", timeout: 300000 }); // 5 minute timeout to avoid deadline expired error
 
     const result = await model.generateContent({
       contents: [{ role: 'user', parts }],

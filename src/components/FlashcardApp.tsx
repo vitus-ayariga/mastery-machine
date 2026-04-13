@@ -35,6 +35,7 @@ export default function FlashcardApp() {
   const [selectedDeck, setSelectedDeck] = useState<Deck | null>(null);
   const [userDecks, setUserDecks] = useState<Deck[]>([]);
   const [isLoadingMetadata, setIsLoadingMetadata] = useState(false);
+  const [metadataError, setMetadataError] = useState<string | null>(null);
 
   // Load Metadata (Courses)
   useEffect(() => {
@@ -43,11 +44,13 @@ export default function FlashcardApp() {
 
   const refreshCourses = async () => {
     setIsLoadingMetadata(true);
+    setMetadataError(null);
     try {
       const data = await getCourses();
       setCourses(data);
-    } catch (e) {
+    } catch (e: any) {
       console.error("Failed to fetch courses", e);
+      setMetadataError(e.message || "Connection failed. Please check your Supabase credentials or network.");
     } finally {
       setIsLoadingMetadata(false);
     }
@@ -206,6 +209,11 @@ export default function FlashcardApp() {
               <CardContent className="space-y-4">
                 {isLoadingMetadata ? (
                   <div className="flex justify-center p-8"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div>
+                ) : metadataError ? (
+                  <div className="p-4 text-center">
+                    <p className="text-sm text-red-500 mb-4">{metadataError}</p>
+                    <Button size="sm" variant="outline" onClick={refreshCourses}>Retry</Button>
+                  </div>
                 ) : (
                   <>
                     <div className="space-y-2">
